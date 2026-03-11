@@ -47,9 +47,7 @@ while True:
         
     img_display = img.copy()
     
-    # ==========================================
     # ส่วนที่ 1: หาเมทริกซ์การเคลื่อนที่ (Homography)
-    # ==========================================
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     kp_curr, des_curr = orb.detectAndCompute(gray, None)
     
@@ -64,17 +62,13 @@ while True:
             dst_pts = np.float32([kp_curr[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)
             H, _ = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
 
-    # ==========================================
     # ส่วนที่ 2: Image Processing Pipeline (DIP)
-    # ==========================================
     median = cv2.medianBlur(gray, p['m_blur'])
     blur = cv2.GaussianBlur(median, (p['g_blur'], p['g_blur']), 1)
     canny = cv2.Canny(blur, p['c_low'], p['c_high'])
     dilate = cv2.dilate(canny, np.ones((3, 3), np.uint8), iterations=p['d_iter'])
     
-    # ==========================================
     # ส่วนที่ 3: ตรวจสอบพิกเซลในกรอบที่เอียงแล้ว
-    # ==========================================
     spaceCounter = 0
     for pos in posList:
         px1, py1, px2, py2 = map(int, pos)
@@ -86,7 +80,7 @@ while True:
         else:
             poly_pts = np.int32(pts)
             
-        # สร้าง Bounding Box ครอบรูปหลายเหลี่ยมเพื่อตีกรอบพื้นที่ทำงาน (ลดการกินสเปคเครื่อง)
+        # สร้าง Bounding Box ครอบรูปหลายเหลี่ยมเพื่อตีกรอบพื้นที่ทำงาน
         bx, by, bw, bh = cv2.boundingRect(poly_pts)
         bx, by = max(0, bx), max(0, by)
         bw = min(dilate.shape[1] - bx, bw)
@@ -99,10 +93,10 @@ while True:
         
         # สร้าง Mask สีดำ และระบายสีขาวเฉพาะในรูปหลายเหลี่ยม
         mask = np.zeros((bh, bw), dtype=np.uint8)
-        local_poly = poly_pts - [bx, by] # ขยับพิกัดมาอยู่ในจุดอ้างอิงของการ Crop
+        local_poly = poly_pts - [bx, by] 
         cv2.fillPoly(mask, [local_poly], 255)
         
-        # หด Mask ลงนิดนึง (Erosion) เพื่อทำหน้าที่แทน Pad 15% ในโค้ดเก่า (กันขอบเส้นจอดรถ)
+        # หด Mask ลงนิดนึงเพื่อทำหน้าที่แทน Padding 15% 
         mask = cv2.erode(mask, np.ones((5,5), np.uint8), iterations=1)
         
         # นำ Mask ทาบทับภาพ Dilate และนับจุดสีขาว
@@ -135,4 +129,5 @@ while True:
 cap.release()
 out.release()
 cv2.destroyAllWindows()
+
 print("Success! Saved to 'smart_parking_cam3_dynamic.mp4'")
