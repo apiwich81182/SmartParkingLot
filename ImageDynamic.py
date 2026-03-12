@@ -37,7 +37,7 @@ if fps == 0: fps = 20
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 out = cv2.VideoWriter('smart_parking_cam3_dynamic.mp4', fourcc, fps, (width, height))
 
-print("Processing Cam3 with Dynamic ROI... PRESS 'q' TO STOP")
+print("Processing with Dynamic ROI... PRESS 'q' TO STOP")
 
 while True:
     success, img = cap.read()
@@ -120,7 +120,7 @@ while True:
     cv2.putText(img_display, f"Free: {spaceCounter}/{len(posList)}", (10, 40), 
                 cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
 
-    cv2.imshow("Cam3 Dynamic DIP", img_display)
+    cv2.imshow("Dynamic DIP", img_display)
     out.write(img_display)
     
     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -130,4 +130,5 @@ while True:
 cap.release()
 out.release()
 cv2.destroyAllWindows()
+
 print("Success! Saved to 'smart_parking_cam3_dynamic.mp4'")
